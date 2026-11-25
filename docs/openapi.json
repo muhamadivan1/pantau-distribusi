@@ -1,0 +1,1366 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Pantau Distribusi API",
+    "description": "API pemantauan penyulang distribusi 20 kV: menerima telemetri dari berbagai format, membuat alarm dan catatan gangguan, serta menghitung SAIDI, SAIFI, dan CAIDI. Proyek portofolio dengan data fiktif.",
+    "version": "1.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Sistem"
+        ],
+        "summary": "Cek server hidup",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/feeders": {
+      "get": {
+        "tags": [
+          "Penyulang"
+        ],
+        "summary": "Daftar penyulang beserta status terkini",
+        "operationId": "list_feeders_api_v1_feeders_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FeederOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Feeders Api V1 Feeders Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/feeders/{feeder_id}": {
+      "get": {
+        "tags": [
+          "Penyulang"
+        ],
+        "summary": "Detail satu penyulang",
+        "operationId": "get_feeder_api_v1_feeders__feeder_id__get",
+        "parameters": [
+          {
+            "name": "feeder_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Feeder Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeederOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/feeders/{feeder_id}/measurements": {
+      "get": {
+        "tags": [
+          "Penyulang"
+        ],
+        "summary": "Riwayat pengukuran (untuk grafik)",
+        "operationId": "list_measurements_api_v1_feeders__feeder_id__measurements_get",
+        "parameters": [
+          {
+            "name": "feeder_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Feeder Id"
+            }
+          },
+          {
+            "name": "hours",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 168,
+              "minimum": 1,
+              "description": "Rentang ke belakang, dalam jam",
+              "default": 24,
+              "title": "Hours"
+            },
+            "description": "Rentang ke belakang, dalam jam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MeasurementOut"
+                  },
+                  "title": "Response List Measurements Api V1 Feeders  Feeder Id  Measurements Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/telemetry": {
+      "post": {
+        "tags": [
+          "Telemetri"
+        ],
+        "summary": "Kirim telemetri dalam format apa pun yang didukung",
+        "description": "Format dikenali otomatis dari isi payload. Rekaman yang ditolak tetap dilaporkan beserta alasannya.",
+        "operationId": "post_telemetry_api_v1_telemetry_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Payload"
+              },
+              "examples": {
+                "rtu-ioa": {
+                  "summary": "RTU gardu induk (titik ukur IOA)",
+                  "value": {
+                    "rtu": "RTU-GI-DEMO-UTARA",
+                    "timestamp": "2026-11-25T08:00:00+07:00",
+                    "points": [
+                      {
+                        "ioa": 1001,
+                        "value": 245.3
+                      },
+                      {
+                        "ioa": 1002,
+                        "value": 20.1
+                      },
+                      {
+                        "ioa": 1003,
+                        "value": 7.69
+                      }
+                    ]
+                  }
+                },
+                "modbus": {
+                  "summary": "IED penyulang (register Modbus)",
+                  "value": {
+                    "device": "IED-PYL-04",
+                    "feeder": "PYL-04",
+                    "ts_epoch": 1795568400,
+                    "registers": {
+                      "40001": 2453,
+                      "40002": 2010,
+                      "40003": 769
+                    }
+                  }
+                },
+                "csv-meter": {
+                  "summary": "Ekspor CSV sistem meter",
+                  "value": {
+                    "content": "penyulang;waktu;arus_a;tegangan_kv;daya_mw\nPYL-06;25/11/2026 08:00:00;210,50;20,10;6,59"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alarms": {
+      "get": {
+        "tags": [
+          "Alarm"
+        ],
+        "summary": "Daftar alarm, terbaru di atas",
+        "operationId": "list_alarms_api_v1_alarms_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "open",
+                "all"
+              ],
+              "type": "string",
+              "description": "open = belum selesai, all = termasuk yang sudah normal",
+              "default": "open",
+              "title": "Status"
+            },
+            "description": "open = belum selesai, all = termasuk yang sudah normal"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlarmOut"
+                  },
+                  "title": "Response List Alarms Api V1 Alarms Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alarms/{alarm_id}/acknowledge": {
+      "post": {
+        "tags": [
+          "Alarm"
+        ],
+        "summary": "Konfirmasi alarm sudah dilihat operator",
+        "operationId": "acknowledge_api_v1_alarms__alarm_id__acknowledge_post",
+        "parameters": [
+          {
+            "name": "alarm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Alarm Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcknowledgeIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlarmOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outages": {
+      "get": {
+        "tags": [
+          "Gangguan"
+        ],
+        "summary": "Daftar gangguan, terbaru di atas",
+        "operationId": "list_outages_api_v1_outages_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "open",
+                "closed",
+                "all"
+              ],
+              "type": "string",
+              "default": "all",
+              "title": "Status"
+            }
+          },
+          {
+            "name": "feeder_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Feeder Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OutageOut"
+                  },
+                  "title": "Response List Outages Api V1 Outages Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Gangguan"
+        ],
+        "summary": "Catat gangguan secara manual",
+        "operationId": "create_outage_api_v1_outages_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outages/{outage_id}": {
+      "patch": {
+        "tags": [
+          "Gangguan"
+        ],
+        "summary": "Perbarui penyebab, jumlah pelanggan, catatan, atau waktu pulih",
+        "operationId": "update_outage_api_v1_outages__outage_id__patch",
+        "parameters": [
+          {
+            "name": "outage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Outage Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutageUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reliability": {
+      "get": {
+        "tags": [
+          "Laporan"
+        ],
+        "summary": "SAIDI, SAIFI, dan CAIDI untuk satu periode",
+        "operationId": "get_reliability_api_v1_reliability_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 366,
+              "minimum": 1,
+              "description": "Dipakai jika start dan end kosong",
+              "default": 30,
+              "title": "Days"
+            },
+            "description": "Dipakai jika start dan end kosong"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Awal periode (ISO 8601)",
+              "title": "Start"
+            },
+            "description": "Awal periode (ISO 8601)"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Akhir periode (ISO 8601)",
+              "title": "End"
+            },
+            "description": "Akhir periode (ISO 8601)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReliabilityOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/shift-summary": {
+      "get": {
+        "tags": [
+          "Laporan"
+        ],
+        "summary": "Ringkasan untuk serah terima shift operator",
+        "operationId": "get_shift_summary_api_v1_reports_shift_summary_get",
+        "parameters": [
+          {
+            "name": "hours",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 24,
+              "minimum": 1,
+              "default": 8,
+              "title": "Hours"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftSummaryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AcknowledgeIn": {
+        "properties": {
+          "by": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "By",
+            "examples": [
+              "Operator Shift Pagi"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "by"
+        ],
+        "title": "AcknowledgeIn"
+      },
+      "AlarmOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "feeder_id": {
+            "type": "string",
+            "title": "Feeder Id"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "load_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Load Pct"
+          },
+          "raised_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Raised At"
+          },
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledged At"
+          },
+          "acknowledged_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledged By"
+          },
+          "cleared_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cleared At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "feeder_id",
+          "level",
+          "message",
+          "load_pct",
+          "raised_at",
+          "acknowledged_at",
+          "acknowledged_by",
+          "cleared_at"
+        ],
+        "title": "AlarmOut"
+      },
+      "FeederOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "substation": {
+            "type": "string",
+            "title": "Substation"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "capacity_a": {
+            "type": "number",
+            "title": "Capacity A"
+          },
+          "customers": {
+            "type": "integer",
+            "title": "Customers"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "waspada",
+              "kritis",
+              "padam",
+              "tanpa_data"
+            ],
+            "title": "Status"
+          },
+          "load_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Load Pct",
+            "description": "Arus terakhir dibagi kapasitas, dalam persen"
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MeasurementOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "substation",
+          "area",
+          "capacity_a",
+          "customers",
+          "status"
+        ],
+        "title": "FeederOut"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IngestResult": {
+        "properties": {
+          "adapter": {
+            "type": "string",
+            "title": "Adapter"
+          },
+          "received": {
+            "type": "integer",
+            "title": "Received"
+          },
+          "stored": {
+            "type": "integer",
+            "title": "Stored"
+          },
+          "duplicates": {
+            "type": "integer",
+            "title": "Duplicates"
+          },
+          "rejected": {
+            "items": {
+              "$ref": "#/components/schemas/RejectedRecord"
+            },
+            "type": "array",
+            "title": "Rejected"
+          },
+          "alarms_raised": {
+            "type": "integer",
+            "title": "Alarms Raised"
+          },
+          "outages_opened": {
+            "type": "integer",
+            "title": "Outages Opened"
+          },
+          "outages_closed": {
+            "type": "integer",
+            "title": "Outages Closed"
+          },
+          "processing_ms": {
+            "type": "number",
+            "title": "Processing Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "adapter",
+          "received",
+          "stored",
+          "duplicates",
+          "rejected",
+          "alarms_raised",
+          "outages_opened",
+          "outages_closed",
+          "processing_ms"
+        ],
+        "title": "IngestResult"
+      },
+      "MeasurementOut": {
+        "properties": {
+          "measured_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Measured At"
+          },
+          "current_a": {
+            "type": "number",
+            "title": "Current A"
+          },
+          "voltage_kv": {
+            "type": "number",
+            "title": "Voltage Kv"
+          },
+          "power_mw": {
+            "type": "number",
+            "title": "Power Mw"
+          },
+          "source_format": {
+            "type": "string",
+            "title": "Source Format"
+          }
+        },
+        "type": "object",
+        "required": [
+          "measured_at",
+          "current_a",
+          "voltage_kv",
+          "power_mw",
+          "source_format"
+        ],
+        "title": "MeasurementOut"
+      },
+      "OutageCreate": {
+        "properties": {
+          "feeder_id": {
+            "type": "string",
+            "title": "Feeder Id"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "restored_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restored At"
+          },
+          "cause": {
+            "type": "string",
+            "enum": [
+              "pohon",
+              "hewan",
+              "peralatan",
+              "cuaca",
+              "pihak_ketiga",
+              "pemeliharaan",
+              "belum_diketahui"
+            ],
+            "title": "Cause",
+            "default": "belum_diketahui"
+          },
+          "customers_affected": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customers Affected",
+            "description": "Kosongkan untuk memakai jumlah pelanggan penyulang"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "feeder_id",
+          "started_at"
+        ],
+        "title": "OutageCreate"
+      },
+      "OutageOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "feeder_id": {
+            "type": "string",
+            "title": "Feeder Id"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "restored_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restored At"
+          },
+          "cause": {
+            "type": "string",
+            "title": "Cause"
+          },
+          "customers_affected": {
+            "type": "integer",
+            "title": "Customers Affected"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "auto_detected": {
+            "type": "boolean",
+            "title": "Auto Detected"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "feeder_id",
+          "started_at",
+          "restored_at",
+          "cause",
+          "customers_affected",
+          "notes",
+          "auto_detected"
+        ],
+        "title": "OutageOut"
+      },
+      "OutageUpdate": {
+        "properties": {
+          "restored_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restored At"
+          },
+          "cause": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pohon",
+                  "hewan",
+                  "peralatan",
+                  "cuaca",
+                  "pihak_ketiga",
+                  "pemeliharaan",
+                  "belum_diketahui"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cause"
+          },
+          "customers_affected": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customers Affected"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "title": "OutageUpdate"
+      },
+      "RejectedRecord": {
+        "properties": {
+          "feeder_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feeder Id"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feeder_id",
+          "reasons"
+        ],
+        "title": "RejectedRecord"
+      },
+      "ReliabilityOut": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "customers_served": {
+            "type": "integer",
+            "title": "Customers Served"
+          },
+          "sustained_threshold_minutes": {
+            "type": "number",
+            "title": "Sustained Threshold Minutes"
+          },
+          "interruptions": {
+            "type": "integer",
+            "title": "Interruptions"
+          },
+          "saidi_minutes": {
+            "type": "number",
+            "title": "Saidi Minutes"
+          },
+          "saifi": {
+            "type": "number",
+            "title": "Saifi"
+          },
+          "caidi_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caidi Minutes"
+          },
+          "by_feeder": {
+            "items": {
+              "$ref": "#/components/schemas/ReliabilityRow"
+            },
+            "type": "array",
+            "title": "By Feeder"
+          },
+          "by_cause": {
+            "items": {
+              "$ref": "#/components/schemas/ReliabilityRow"
+            },
+            "type": "array",
+            "title": "By Cause"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "customers_served",
+          "sustained_threshold_minutes",
+          "interruptions",
+          "saidi_minutes",
+          "saifi",
+          "caidi_minutes",
+          "by_feeder",
+          "by_cause"
+        ],
+        "title": "ReliabilityOut"
+      },
+      "ReliabilityRow": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "interruptions": {
+            "type": "integer",
+            "title": "Interruptions"
+          },
+          "customers_interrupted": {
+            "type": "integer",
+            "title": "Customers Interrupted"
+          },
+          "customer_minutes": {
+            "type": "number",
+            "title": "Customer Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "interruptions",
+          "customers_interrupted",
+          "customer_minutes"
+        ],
+        "title": "ReliabilityRow"
+      },
+      "ShiftSummaryOut": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "headline": {
+            "type": "string",
+            "title": "Headline"
+          },
+          "lines": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "headline",
+          "lines",
+          "counts"
+        ],
+        "title": "ShiftSummaryOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
