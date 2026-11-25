@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Ikon: busbar dengan tiga penyulang -->
+  <rect width="32" height="32" rx="6" fill="#2b2f33"/>
+  <rect x="5" y="8" width="22" height="3" fill="#e9eae6"/>
+  <path d="M9 11v13M16 11v13M23 11v13" stroke="#e9eae6" stroke-width="2"/>
+  <rect x="20.5" y="15" width="5" height="5" fill="#d9a21b"/>
+</svg>
