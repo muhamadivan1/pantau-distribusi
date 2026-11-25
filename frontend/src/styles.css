@@ -1,0 +1,878 @@
+/*
+ * styles.css
+ * ---------------------------------------------------------------------------
+ * Konsep: layar ruang kendali bergaya "high-performance HMI".
+ * - Latar dan elemen normal memakai abu-abu netral.
+ * - Warna hanya muncul untuk kondisi tidak normal, supaya mata operator
+ *   langsung tertuju ke masalah: amber = waspada, merah = kritis, magenta = padam.
+ * - Huruf Barlow (bergaya rambu industri), angka memakai tabular-nums agar
+ *   tidak bergeser saat nilainya berubah.
+ *
+ * Isi: 1 token, 2 dasar, 3 kerangka, 4 komponen umum, 5 diagram busbar,
+ *      6 halaman, 7 responsif.
+ */
+
+/* ============================== 1. TOKEN ============================== */
+:root {
+  --canvas: #e4e5e1;
+  --panel: #f1f1ee;
+  --ink: #22262a;
+  --muted: #5d6369;
+  --line: #bfc2bd;
+  --bus: #33383d;
+  --side: #2b2f33;
+  --side-ink: #d9dbd6;
+
+  --warn: #b67b00;
+  --warn-bg: #f6e3b4;
+  --crit: #b8321f;
+  --crit-bg: #f4d0c9;
+  --off: #962064;
+  --off-bg: #efd0e2;
+
+  --font: "Barlow", system-ui, sans-serif;
+  --font-cond: "Barlow Condensed", "Barlow", system-ui, sans-serif;
+
+  --radius: 4px;
+}
+
+/* ============================== 2. DASAR ============================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+p,
+ul,
+dl,
+dd {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+h1,
+h2 {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 13px;
+}
+
+.lead {
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+.text-link {
+  display: inline-block;
+  font-weight: 500;
+  text-underline-offset: 3px;
+}
+
+/* ============================== 3. KERANGKA ============================== */
+.shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  min-height: 100vh;
+  /* Kolom kiri tetap gelap walau halaman lebih panjang dari layar. */
+  background: linear-gradient(to right, var(--side) 220px, transparent 220px);
+}
+
+.sidebar {
+  background: var(--side);
+  color: var(--side-ink);
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.brand {
+  display: grid;
+  padding: 0 8px;
+}
+
+.brand-name {
+  font-family: var(--font-cond);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.brand-sub {
+  font-size: 13px;
+  color: #a4a8a3;
+}
+
+.sidebar a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background: #383d42;
+}
+
+.sidebar a.active {
+  background: var(--side-ink);
+  color: var(--side);
+  font-weight: 600;
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #a4a8a3;
+}
+
+.mode {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #5d6369;
+  font-size: 12px;
+}
+
+.mode-live {
+  border-color: #8fb39a;
+  color: #cfe4d5;
+}
+
+.main {
+  padding: 24px 32px 48px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.page-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px 24px;
+}
+
+.page-head h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-head > p {
+  grid-column: 1 / -1;
+  max-width: 72ch;
+}
+
+/* ============================== 4. KOMPONEN UMUM ============================== */
+.banner {
+  padding: 10px 14px;
+  border-left: 4px solid var(--bus);
+  background: var(--panel);
+  font-size: 14px;
+}
+
+.banner-wait {
+  border-left-color: var(--warn);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  padding: 1px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-normal,
+.status-stale {
+  color: var(--muted);
+  background: transparent;
+  padding-left: 0;
+}
+
+.status-warn {
+  color: #7a5200;
+  background: var(--warn-bg);
+}
+
+.status-crit {
+  color: #8c2414;
+  background: var(--crit-bg);
+}
+
+.status-off {
+  color: #741549;
+  background: var(--off-bg);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--bus);
+  border-radius: var(--radius);
+  background: transparent;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #d8dad5;
+}
+
+.btn-primary {
+  background: var(--bus);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #1f2327;
+}
+
+.btn-small {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--bus);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmented button {
+  border: 0;
+  background: transparent;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--bus);
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--bus);
+  color: #fff;
+}
+
+.field-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+input,
+select {
+  min-height: 36px;
+  padding: 4px 8px;
+  border: 1px solid #9ea29c;
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.error-note {
+  color: #8c2414;
+  background: var(--crit-bg);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.table th {
+  font-family: var(--font-cond);
+  font-size: 15px;
+  font-weight: 600;
+  background: #e9eae6;
+}
+
+.table .num {
+  text-align: right;
+}
+
+.row-open td {
+  background: var(--off-bg);
+}
+
+.loadbar {
+  position: relative;
+  height: 8px;
+  background: #d3d5d0;
+  border-radius: 2px;
+}
+
+.loadbar-fill {
+  height: 100%;
+  background: #7a8086;
+  border-radius: 2px;
+}
+
+.loadbar-fill.tone-warn {
+  background: var(--warn);
+}
+
+.loadbar-fill.tone-crit {
+  background: var(--crit);
+}
+
+.loadbar-tick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--warn);
+}
+
+.loadbar-tick.tick-crit {
+  background: var(--crit);
+}
+
+/* ============================== 5. DIAGRAM BUSBAR ============================== */
+.busbar-group {
+  display: grid;
+}
+
+.busbar-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.busbar-title .muted {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.busbar {
+  height: 6px;
+  background: var(--bus);
+  border-radius: 1px;
+}
+
+.feeder-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0 16px;
+}
+
+.feeder {
+  display: grid;
+  justify-items: center;
+}
+
+/* Garis turun dari busbar ke pemutus, lalu dari pemutus ke kartu. */
+.feeder-drop {
+  width: 3px;
+  height: 22px;
+  background: var(--bus);
+}
+
+.feeder-drop.is-open {
+  background: repeating-linear-gradient(var(--off) 0 4px, transparent 4px 8px);
+}
+
+.breaker {
+  width: 18px;
+  height: 18px;
+  background: var(--bus);
+  border: 3px solid var(--bus);
+}
+
+/* Pemutus terbuka digambar kosong, seperti simbol pada diagram satu garis. */
+.breaker.is-open {
+  background: var(--canvas);
+  border-color: var(--off);
+}
+
+.feeder-card {
+  margin-top: 14px;
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 4px solid #9ea29c;
+  border-radius: var(--radius);
+  text-decoration: none;
+  position: relative;
+}
+
+.feeder-card::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  width: 3px;
+  height: 14px;
+  background: var(--bus);
+  transform: translateX(-50%);
+}
+
+.feeder.tone-off .feeder-card::before {
+  background: repeating-linear-gradient(var(--off) 0 4px, transparent 4px 8px);
+}
+
+.feeder-card:hover {
+  border-color: var(--bus);
+}
+
+.tone-warn .feeder-card {
+  border-top-color: var(--warn);
+}
+
+.tone-crit .feeder-card {
+  border-top-color: var(--crit);
+  background: #f7e7e3;
+}
+
+.tone-off .feeder-card {
+  border-top-color: var(--off);
+  background: #f5e6ef;
+}
+
+.feeder-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.feeder-id {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.feeder-name {
+  color: var(--muted);
+  margin-right: auto;
+}
+
+.feeder-load {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.big-number {
+  font-family: var(--font-cond);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.unit {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.feeder-readings {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.feeder-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ============================== 6. HALAMAN ============================== */
+.status-strip {
+  justify-self: start;
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.strip-item {
+  padding: 6px 16px;
+  display: grid;
+  justify-items: center;
+}
+
+.strip-item + .strip-item {
+  border-left: 1px solid var(--line);
+}
+
+.strip-item dt {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.strip-item dd {
+  font-family: var(--font-cond);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.strip-item.tone-warn {
+  background: var(--warn-bg);
+}
+
+.strip-item.tone-crit {
+  background: var(--crit-bg);
+}
+
+.strip-item.tone-off {
+  background: var(--off-bg);
+}
+
+.overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.overview-main {
+  display: grid;
+  gap: 28px;
+}
+
+.overview-side {
+  display: grid;
+  gap: 16px;
+}
+
+.alarm-list {
+  display: grid;
+  gap: 10px;
+}
+
+.alarm-list li {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.alarm-list li.is-acked {
+  opacity: 0.75;
+}
+
+.stat-row,
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stat-row > div,
+.kpi-row > div {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.stat-row dt,
+.kpi-row dt {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.stat-row dd {
+  font-family: var(--font-cond);
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.kpi-row dt {
+  font-family: var(--font-cond);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.kpi-row dd {
+  font-family: var(--font-cond);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.kpi-row .unit {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.formula {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.chart {
+  min-height: 280px;
+}
+
+.chart-tip {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.form-grid h2,
+.form-grid .span-2,
+.form-grid .error-note {
+  grid-column: 1 / -1;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.edit-inline label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-row td {
+  background: #e9eae6;
+}
+
+.report-lines {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.count-list > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.count-list dd {
+  font-weight: 600;
+}
+
+/* ============================== 7. RESPONSIF ============================== */
+@media (max-width: 1100px) {
+  .overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .shell {
+    grid-template-columns: 1fr;
+    background: none;
+  }
+
+  .page-head {
+    grid-template-columns: 1fr;
+  }
+
+  /* Dua penyulang per baris supaya garis dari busbar tetap terbaca. */
+  .feeder-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 10px;
+  }
+
+  .feeder-card {
+    padding: 10px;
+  }
+
+  /* Penyulang di baris kedua tidak bisa digambar tersambung ke busbar di layar
+     sempit, jadi garisnya disembunyikan. Status padam tetap terlihat dari warna kartu. */
+  .feeder:nth-child(n + 3) .feeder-drop,
+  .feeder:nth-child(n + 3) .breaker,
+  .feeder:nth-child(n + 3) .feeder-card::before {
+    display: none;
+  }
+
+  .feeder:nth-child(n + 3) .feeder-card {
+    margin-top: 12px;
+  }
+
+  .big-number {
+    font-size: 32px;
+  }
+
+  .feeder-readings {
+    flex-wrap: wrap;
+    gap: 2px 10px;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .sidebar ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .sidebar-foot {
+    margin-top: 0;
+  }
+
+  .sidebar-foot p {
+    display: none;
+  }
+
+  .main {
+    padding: 18px 16px 40px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tabel lebar bisa digeser ke samping di HP tanpa merusak halaman. */
+  .table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
