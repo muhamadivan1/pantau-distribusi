@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Database lokal dan rahasia
+*.db
+.env
+
+# Node dan hasil build
+node_modules/
+frontend/dist/
+
+# Editor dan sistem
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
