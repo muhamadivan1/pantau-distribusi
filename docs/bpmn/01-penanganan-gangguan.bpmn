@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Proses_Gangguan" targetNamespace="https://github.com/muhamadivan1/pantau-distribusi/bpmn">
+  <bpmn:collaboration id="Collab_Proses_Gangguan">
+    <bpmn:participant id="Pool_Proses_Gangguan" name="Penanganan gangguan penyulang" processRef="Proses_Gangguan" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proses_Gangguan" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Proses_Gangguan">
+      <bpmn:lane id="Lane_Proses_Gangguan_0" name="Operator ruang kendali">
+        <bpmn:flowNodeRef>Proses_Gangguan_t2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_t3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_t6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_t8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_e1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Proses_Gangguan_1" name="Sistem Pantau Distribusi">
+        <bpmn:flowNodeRef>Proses_Gangguan_s1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_t1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_t7</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Proses_Gangguan_2" name="Regu lapangan">
+        <bpmn:flowNodeRef>Proses_Gangguan_t4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_g1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Gangguan_t5</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Proses_Gangguan_s1" name="Tegangan penyulang hilang">
+      <bpmn:outgoing>Proses_Gangguan_Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Proses_Gangguan_t1" name="Buka gangguan dan alarm padam otomatis">
+      <bpmn:incoming>Proses_Gangguan_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Proses_Gangguan_t2" name="Konfirmasi alarm">
+      <bpmn:incoming>Proses_Gangguan_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Proses_Gangguan_t3" name="Perintahkan regu memeriksa jaringan">
+      <bpmn:incoming>Proses_Gangguan_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Proses_Gangguan_t4" name="Telusuri jaringan dan temukan penyebab">
+      <bpmn:incoming>Proses_Gangguan_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Proses_Gangguan_g1" name="Bisa dipulihkan cepat?">
+      <bpmn:incoming>Proses_Gangguan_Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>Proses_Gangguan_Flow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Proses_Gangguan_t6" name="Manuver jaringan ke penyulang lain">
+      <bpmn:incoming>Proses_Gangguan_Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Proses_Gangguan_t5" name="Perbaiki penyebab gangguan">
+      <bpmn:incoming>Proses_Gangguan_Flow_6</bpmn:incoming>
+      <bpmn:incoming>Proses_Gangguan_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Proses_Gangguan_t7" name="Tegangan kembali, gangguan ditutup otomatis">
+      <bpmn:incoming>Proses_Gangguan_Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Proses_Gangguan_t8" name="Lengkapi penyebab gangguan">
+      <bpmn:incoming>Proses_Gangguan_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Proses_Gangguan_Flow_11</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Proses_Gangguan_e1" name="Data siap dihitung ke SAIDI dan SAIFI">
+      <bpmn:incoming>Proses_Gangguan_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_1" sourceRef="Proses_Gangguan_s1" targetRef="Proses_Gangguan_t1" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_2" sourceRef="Proses_Gangguan_t1" targetRef="Proses_Gangguan_t2" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_3" sourceRef="Proses_Gangguan_t2" targetRef="Proses_Gangguan_t3" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_4" sourceRef="Proses_Gangguan_t3" targetRef="Proses_Gangguan_t4" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_5" sourceRef="Proses_Gangguan_t4" targetRef="Proses_Gangguan_g1" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_6" name="Ya" sourceRef="Proses_Gangguan_g1" targetRef="Proses_Gangguan_t5" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_7" name="Tidak" sourceRef="Proses_Gangguan_g1" targetRef="Proses_Gangguan_t6" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_8" sourceRef="Proses_Gangguan_t6" targetRef="Proses_Gangguan_t5" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_9" sourceRef="Proses_Gangguan_t5" targetRef="Proses_Gangguan_t7" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_10" sourceRef="Proses_Gangguan_t7" targetRef="Proses_Gangguan_t8" />
+    <bpmn:sequenceFlow id="Proses_Gangguan_Flow_11" sourceRef="Proses_Gangguan_t8" targetRef="Proses_Gangguan_e1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_Proses_Gangguan">
+    <bpmndi:BPMNPlane id="Plane_Proses_Gangguan" bpmnElement="Collab_Proses_Gangguan">
+      <bpmndi:BPMNShape id="Pool_Proses_Gangguan_di" bpmnElement="Pool_Proses_Gangguan" isHorizontal="true">
+        <dc:Bounds x="40" y="40" width="2150" height="660" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_Gangguan_0_di" bpmnElement="Lane_Proses_Gangguan_0" isHorizontal="true">
+        <dc:Bounds x="70" y="40" width="2120" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_Gangguan_1_di" bpmnElement="Lane_Proses_Gangguan_1" isHorizontal="true">
+        <dc:Bounds x="70" y="260" width="2120" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_Gangguan_2_di" bpmnElement="Lane_Proses_Gangguan_2" isHorizontal="true">
+        <dc:Bounds x="70" y="480" width="2120" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_s1_di" bpmnElement="Proses_Gangguan_s1">
+        <dc:Bounds x="182" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="150" y="394" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t1_di" bpmnElement="Proses_Gangguan_t1">
+        <dc:Bounds x="315" y="325" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t2_di" bpmnElement="Proses_Gangguan_t2">
+        <dc:Bounds x="500" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t3_di" bpmnElement="Proses_Gangguan_t3">
+        <dc:Bounds x="685" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t4_di" bpmnElement="Proses_Gangguan_t4">
+        <dc:Bounds x="870" y="545" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_g1_di" bpmnElement="Proses_Gangguan_g1" isMarkerVisible="true">
+        <dc:Bounds x="1100" y="565" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1075" y="621" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t6_di" bpmnElement="Proses_Gangguan_t6">
+        <dc:Bounds x="1240" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t5_di" bpmnElement="Proses_Gangguan_t5">
+        <dc:Bounds x="1425" y="545" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t7_di" bpmnElement="Proses_Gangguan_t7">
+        <dc:Bounds x="1610" y="325" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_t8_di" bpmnElement="Proses_Gangguan_t8">
+        <dc:Bounds x="1795" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Gangguan_e1_di" bpmnElement="Proses_Gangguan_e1">
+        <dc:Bounds x="2032" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2000" y="174" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_1_di" bpmnElement="Proses_Gangguan_Flow_1">
+        <di:waypoint x="218" y="370" />
+        <di:waypoint x="315" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_2_di" bpmnElement="Proses_Gangguan_Flow_2">
+        <di:waypoint x="455" y="370" />
+        <di:waypoint x="477" y="370" />
+        <di:waypoint x="477" y="150" />
+        <di:waypoint x="500" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_3_di" bpmnElement="Proses_Gangguan_Flow_3">
+        <di:waypoint x="640" y="150" />
+        <di:waypoint x="685" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_4_di" bpmnElement="Proses_Gangguan_Flow_4">
+        <di:waypoint x="825" y="150" />
+        <di:waypoint x="847" y="150" />
+        <di:waypoint x="847" y="590" />
+        <di:waypoint x="870" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_5_di" bpmnElement="Proses_Gangguan_Flow_5">
+        <di:waypoint x="1010" y="590" />
+        <di:waypoint x="1100" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_6_di" bpmnElement="Proses_Gangguan_Flow_6">
+        <di:waypoint x="1150" y="590" />
+        <di:waypoint x="1425" y="590" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1160" y="570" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_7_di" bpmnElement="Proses_Gangguan_Flow_7">
+        <di:waypoint x="1125" y="565" />
+        <di:waypoint x="1125" y="150" />
+        <di:waypoint x="1240" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1137" y="132" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_8_di" bpmnElement="Proses_Gangguan_Flow_8">
+        <di:waypoint x="1380" y="150" />
+        <di:waypoint x="1402" y="150" />
+        <di:waypoint x="1402" y="590" />
+        <di:waypoint x="1425" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_9_di" bpmnElement="Proses_Gangguan_Flow_9">
+        <di:waypoint x="1565" y="590" />
+        <di:waypoint x="1587" y="590" />
+        <di:waypoint x="1587" y="370" />
+        <di:waypoint x="1610" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_10_di" bpmnElement="Proses_Gangguan_Flow_10">
+        <di:waypoint x="1750" y="370" />
+        <di:waypoint x="1772" y="370" />
+        <di:waypoint x="1772" y="150" />
+        <di:waypoint x="1795" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Gangguan_Flow_11_di" bpmnElement="Proses_Gangguan_Flow_11">
+        <di:waypoint x="1935" y="150" />
+        <di:waypoint x="2032" y="150" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

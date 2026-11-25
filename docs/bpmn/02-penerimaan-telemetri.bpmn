@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Proses_Telemetri" targetNamespace="https://github.com/muhamadivan1/pantau-distribusi/bpmn">
+  <bpmn:collaboration id="Collab_Proses_Telemetri">
+    <bpmn:participant id="Pool_Proses_Telemetri" name="Penerimaan telemetri dari berbagai format" processRef="Proses_Telemetri" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proses_Telemetri" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Proses_Telemetri">
+      <bpmn:lane id="Lane_Proses_Telemetri_0" name="Gateway perangkat">
+        <bpmn:flowNodeRef>Proses_Telemetri_s1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_t1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_t6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_e1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Proses_Telemetri_1" name="API Pantau Distribusi">
+        <bpmn:flowNodeRef>Proses_Telemetri_g1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_e401</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_g2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_e422</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_t2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_t3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_g3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_erej</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_t4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_Telemetri_t5</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Proses_Telemetri_s1" name="Data ukur terkumpul">
+      <bpmn:outgoing>Proses_Telemetri_Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Proses_Telemetri_t1" name="Kirim POST /telemetry dengan X-API-Key">
+      <bpmn:incoming>Proses_Telemetri_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Proses_Telemetri_g1" name="API key benar?">
+      <bpmn:incoming>Proses_Telemetri_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_3</bpmn:outgoing>
+      <bpmn:outgoing>Proses_Telemetri_Flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Proses_Telemetri_e401" name="Ditolak 401">
+      <bpmn:incoming>Proses_Telemetri_Flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Proses_Telemetri_g2" name="Format dikenali adapter?">
+      <bpmn:incoming>Proses_Telemetri_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>Proses_Telemetri_Flow_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Proses_Telemetri_e422" name="Ditolak 422">
+      <bpmn:incoming>Proses_Telemetri_Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Proses_Telemetri_t2" name="Ubah ke bentuk kanonik lewat adapter">
+      <bpmn:incoming>Proses_Telemetri_Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Proses_Telemetri_t3" name="Validasi rentang dan cek duplikat">
+      <bpmn:incoming>Proses_Telemetri_Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Proses_Telemetri_g3" name="Rekaman lolos?">
+      <bpmn:incoming>Proses_Telemetri_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_9</bpmn:outgoing>
+      <bpmn:outgoing>Proses_Telemetri_Flow_10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Proses_Telemetri_erej" name="Dilaporkan sebagai ditolak">
+      <bpmn:incoming>Proses_Telemetri_Flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Proses_Telemetri_t4" name="Simpan pengukuran">
+      <bpmn:incoming>Proses_Telemetri_Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Proses_Telemetri_t5" name="Perbarui status, alarm, dan gangguan">
+      <bpmn:incoming>Proses_Telemetri_Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Proses_Telemetri_t6" name="Terima ringkasan hasil">
+      <bpmn:incoming>Proses_Telemetri_Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Proses_Telemetri_Flow_13</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Proses_Telemetri_e1" name="Telemetri diproses">
+      <bpmn:incoming>Proses_Telemetri_Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_1" sourceRef="Proses_Telemetri_s1" targetRef="Proses_Telemetri_t1" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_2" sourceRef="Proses_Telemetri_t1" targetRef="Proses_Telemetri_g1" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_3" name="Ya" sourceRef="Proses_Telemetri_g1" targetRef="Proses_Telemetri_g2" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_4" name="Tidak" sourceRef="Proses_Telemetri_g1" targetRef="Proses_Telemetri_e401" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_5" name="Ya" sourceRef="Proses_Telemetri_g2" targetRef="Proses_Telemetri_t2" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_6" name="Tidak" sourceRef="Proses_Telemetri_g2" targetRef="Proses_Telemetri_e422" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_7" sourceRef="Proses_Telemetri_t2" targetRef="Proses_Telemetri_t3" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_8" sourceRef="Proses_Telemetri_t3" targetRef="Proses_Telemetri_g3" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_9" name="Ya" sourceRef="Proses_Telemetri_g3" targetRef="Proses_Telemetri_t4" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_10" name="Tidak" sourceRef="Proses_Telemetri_g3" targetRef="Proses_Telemetri_erej" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_11" sourceRef="Proses_Telemetri_t4" targetRef="Proses_Telemetri_t5" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_12" sourceRef="Proses_Telemetri_t5" targetRef="Proses_Telemetri_t6" />
+    <bpmn:sequenceFlow id="Proses_Telemetri_Flow_13" sourceRef="Proses_Telemetri_t6" targetRef="Proses_Telemetri_e1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_Proses_Telemetri">
+    <bpmndi:BPMNPlane id="Plane_Proses_Telemetri" bpmnElement="Collab_Proses_Telemetri">
+      <bpmndi:BPMNShape id="Pool_Proses_Telemetri_di" bpmnElement="Pool_Proses_Telemetri" isHorizontal="true">
+        <dc:Bounds x="40" y="40" width="2520" height="440" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_Telemetri_0_di" bpmnElement="Lane_Proses_Telemetri_0" isHorizontal="true">
+        <dc:Bounds x="70" y="40" width="2490" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_Telemetri_1_di" bpmnElement="Lane_Proses_Telemetri_1" isHorizontal="true">
+        <dc:Bounds x="70" y="260" width="2490" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_s1_di" bpmnElement="Proses_Telemetri_s1">
+        <dc:Bounds x="182" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="150" y="174" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_t1_di" bpmnElement="Proses_Telemetri_t1">
+        <dc:Bounds x="315" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_g1_di" bpmnElement="Proses_Telemetri_g1" isMarkerVisible="true">
+        <dc:Bounds x="545" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="520" y="299" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_e401_di" bpmnElement="Proses_Telemetri_e401">
+        <dc:Bounds x="552" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="520" y="454" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_g2_di" bpmnElement="Proses_Telemetri_g2" isMarkerVisible="true">
+        <dc:Bounds x="730" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="705" y="299" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_e422_di" bpmnElement="Proses_Telemetri_e422">
+        <dc:Bounds x="737" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="705" y="454" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_t2_di" bpmnElement="Proses_Telemetri_t2">
+        <dc:Bounds x="1055" y="325" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_t3_di" bpmnElement="Proses_Telemetri_t3">
+        <dc:Bounds x="1240" y="325" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_g3_di" bpmnElement="Proses_Telemetri_g3" isMarkerVisible="true">
+        <dc:Bounds x="1470" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1445" y="299" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_erej_di" bpmnElement="Proses_Telemetri_erej">
+        <dc:Bounds x="1477" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1445" y="454" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_t4_di" bpmnElement="Proses_Telemetri_t4">
+        <dc:Bounds x="1795" y="325" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_t5_di" bpmnElement="Proses_Telemetri_t5">
+        <dc:Bounds x="1980" y="325" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_t6_di" bpmnElement="Proses_Telemetri_t6">
+        <dc:Bounds x="2165" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_Telemetri_e1_di" bpmnElement="Proses_Telemetri_e1">
+        <dc:Bounds x="2402" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2370" y="174" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_1_di" bpmnElement="Proses_Telemetri_Flow_1">
+        <di:waypoint x="218" y="150" />
+        <di:waypoint x="315" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_2_di" bpmnElement="Proses_Telemetri_Flow_2">
+        <di:waypoint x="455" y="150" />
+        <di:waypoint x="500" y="150" />
+        <di:waypoint x="500" y="370" />
+        <di:waypoint x="545" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_3_di" bpmnElement="Proses_Telemetri_Flow_3">
+        <di:waypoint x="595" y="370" />
+        <di:waypoint x="730" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="605" y="350" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_4_di" bpmnElement="Proses_Telemetri_Flow_4">
+        <di:waypoint x="570" y="395" />
+        <di:waypoint x="570" y="412" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="578" y="396" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_5_di" bpmnElement="Proses_Telemetri_Flow_5">
+        <di:waypoint x="780" y="370" />
+        <di:waypoint x="1055" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="790" y="350" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_6_di" bpmnElement="Proses_Telemetri_Flow_6">
+        <di:waypoint x="755" y="395" />
+        <di:waypoint x="755" y="412" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="763" y="396" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_7_di" bpmnElement="Proses_Telemetri_Flow_7">
+        <di:waypoint x="1195" y="370" />
+        <di:waypoint x="1240" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_8_di" bpmnElement="Proses_Telemetri_Flow_8">
+        <di:waypoint x="1380" y="370" />
+        <di:waypoint x="1470" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_9_di" bpmnElement="Proses_Telemetri_Flow_9">
+        <di:waypoint x="1520" y="370" />
+        <di:waypoint x="1795" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1530" y="350" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_10_di" bpmnElement="Proses_Telemetri_Flow_10">
+        <di:waypoint x="1495" y="395" />
+        <di:waypoint x="1495" y="412" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1503" y="396" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_11_di" bpmnElement="Proses_Telemetri_Flow_11">
+        <di:waypoint x="1935" y="370" />
+        <di:waypoint x="1980" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_12_di" bpmnElement="Proses_Telemetri_Flow_12">
+        <di:waypoint x="2120" y="370" />
+        <di:waypoint x="2142" y="370" />
+        <di:waypoint x="2142" y="150" />
+        <di:waypoint x="2165" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_Telemetri_Flow_13_di" bpmnElement="Proses_Telemetri_Flow_13">
+        <di:waypoint x="2305" y="150" />
+        <di:waypoint x="2402" y="150" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

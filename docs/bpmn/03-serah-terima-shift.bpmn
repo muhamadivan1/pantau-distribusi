@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Proses_SerahTerima" targetNamespace="https://github.com/muhamadivan1/pantau-distribusi/bpmn">
+  <bpmn:collaboration id="Collab_Proses_SerahTerima">
+    <bpmn:participant id="Pool_Proses_SerahTerima" name="Serah terima shift operator" processRef="Proses_SerahTerima" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proses_SerahTerima" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Proses_SerahTerima">
+      <bpmn:lane id="Lane_Proses_SerahTerima_0" name="Operator shift lama">
+        <bpmn:flowNodeRef>Proses_SerahTerima_s1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_SerahTerima_t1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_SerahTerima_t3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_SerahTerima_t4</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Proses_SerahTerima_1" name="Sistem Pantau Distribusi">
+        <bpmn:flowNodeRef>Proses_SerahTerima_t2</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Proses_SerahTerima_2" name="Operator shift baru">
+        <bpmn:flowNodeRef>Proses_SerahTerima_t5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_SerahTerima_g1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_SerahTerima_t6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Proses_SerahTerima_e1</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Proses_SerahTerima_s1" name="Shift akan berakhir">
+      <bpmn:outgoing>Proses_SerahTerima_Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Proses_SerahTerima_t1" name="Buka halaman Serah terima">
+      <bpmn:incoming>Proses_SerahTerima_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Proses_SerahTerima_t2" name="Susun ringkasan dari alarm, gangguan, dan beban">
+      <bpmn:incoming>Proses_SerahTerima_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Proses_SerahTerima_t3" name="Lengkapi penyebab gangguan yang belum diisi">
+      <bpmn:incoming>Proses_SerahTerima_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Proses_SerahTerima_t4" name="Salin teks ringkasan ke grup operator">
+      <bpmn:incoming>Proses_SerahTerima_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Proses_SerahTerima_t5" name="Baca ringkasan dan alarm yang belum dikonfirmasi">
+      <bpmn:incoming>Proses_SerahTerima_Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Proses_SerahTerima_g1" name="Ada gangguan masih terbuka?">
+      <bpmn:incoming>Proses_SerahTerima_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_7</bpmn:outgoing>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Proses_SerahTerima_t6" name="Lanjutkan penanganan gangguan">
+      <bpmn:incoming>Proses_SerahTerima_Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Proses_SerahTerima_Flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Proses_SerahTerima_e1" name="Shift baru berjalan">
+      <bpmn:incoming>Proses_SerahTerima_Flow_8</bpmn:incoming>
+      <bpmn:incoming>Proses_SerahTerima_Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_1" sourceRef="Proses_SerahTerima_s1" targetRef="Proses_SerahTerima_t1" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_2" sourceRef="Proses_SerahTerima_t1" targetRef="Proses_SerahTerima_t2" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_3" sourceRef="Proses_SerahTerima_t2" targetRef="Proses_SerahTerima_t3" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_4" sourceRef="Proses_SerahTerima_t3" targetRef="Proses_SerahTerima_t4" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_5" sourceRef="Proses_SerahTerima_t4" targetRef="Proses_SerahTerima_t5" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_6" sourceRef="Proses_SerahTerima_t5" targetRef="Proses_SerahTerima_g1" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_7" name="Ya" sourceRef="Proses_SerahTerima_g1" targetRef="Proses_SerahTerima_t6" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_8" name="Tidak" sourceRef="Proses_SerahTerima_g1" targetRef="Proses_SerahTerima_e1" />
+    <bpmn:sequenceFlow id="Proses_SerahTerima_Flow_9" sourceRef="Proses_SerahTerima_t6" targetRef="Proses_SerahTerima_e1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_Proses_SerahTerima">
+    <bpmndi:BPMNPlane id="Plane_Proses_SerahTerima" bpmnElement="Collab_Proses_SerahTerima">
+      <bpmndi:BPMNShape id="Pool_Proses_SerahTerima_di" bpmnElement="Pool_Proses_SerahTerima" isHorizontal="true">
+        <dc:Bounds x="40" y="40" width="1780" height="660" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_SerahTerima_0_di" bpmnElement="Lane_Proses_SerahTerima_0" isHorizontal="true">
+        <dc:Bounds x="70" y="40" width="1750" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_SerahTerima_1_di" bpmnElement="Lane_Proses_SerahTerima_1" isHorizontal="true">
+        <dc:Bounds x="70" y="260" width="1750" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Proses_SerahTerima_2_di" bpmnElement="Lane_Proses_SerahTerima_2" isHorizontal="true">
+        <dc:Bounds x="70" y="480" width="1750" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_s1_di" bpmnElement="Proses_SerahTerima_s1">
+        <dc:Bounds x="182" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="150" y="174" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_t1_di" bpmnElement="Proses_SerahTerima_t1">
+        <dc:Bounds x="315" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_t2_di" bpmnElement="Proses_SerahTerima_t2">
+        <dc:Bounds x="500" y="325" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_t3_di" bpmnElement="Proses_SerahTerima_t3">
+        <dc:Bounds x="685" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_t4_di" bpmnElement="Proses_SerahTerima_t4">
+        <dc:Bounds x="870" y="105" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_t5_di" bpmnElement="Proses_SerahTerima_t5">
+        <dc:Bounds x="1055" y="545" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_g1_di" bpmnElement="Proses_SerahTerima_g1" isMarkerVisible="true">
+        <dc:Bounds x="1285" y="565" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1260" y="519" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_t6_di" bpmnElement="Proses_SerahTerima_t6">
+        <dc:Bounds x="1425" y="490" width="140" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Proses_SerahTerima_e1_di" bpmnElement="Proses_SerahTerima_e1">
+        <dc:Bounds x="1662" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1630" y="614" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_1_di" bpmnElement="Proses_SerahTerima_Flow_1">
+        <di:waypoint x="218" y="150" />
+        <di:waypoint x="315" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_2_di" bpmnElement="Proses_SerahTerima_Flow_2">
+        <di:waypoint x="455" y="150" />
+        <di:waypoint x="477" y="150" />
+        <di:waypoint x="477" y="370" />
+        <di:waypoint x="500" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_3_di" bpmnElement="Proses_SerahTerima_Flow_3">
+        <di:waypoint x="640" y="370" />
+        <di:waypoint x="662" y="370" />
+        <di:waypoint x="662" y="150" />
+        <di:waypoint x="685" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_4_di" bpmnElement="Proses_SerahTerima_Flow_4">
+        <di:waypoint x="825" y="150" />
+        <di:waypoint x="870" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_5_di" bpmnElement="Proses_SerahTerima_Flow_5">
+        <di:waypoint x="1010" y="150" />
+        <di:waypoint x="1032" y="150" />
+        <di:waypoint x="1032" y="590" />
+        <di:waypoint x="1055" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_6_di" bpmnElement="Proses_SerahTerima_Flow_6">
+        <di:waypoint x="1195" y="590" />
+        <di:waypoint x="1285" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_7_di" bpmnElement="Proses_SerahTerima_Flow_7">
+        <di:waypoint x="1335" y="590" />
+        <di:waypoint x="1380" y="590" />
+        <di:waypoint x="1380" y="535" />
+        <di:waypoint x="1425" y="535" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1388" y="515" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_8_di" bpmnElement="Proses_SerahTerima_Flow_8">
+        <di:waypoint x="1335" y="590" />
+        <di:waypoint x="1662" y="590" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1345" y="570" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Proses_SerahTerima_Flow_9_di" bpmnElement="Proses_SerahTerima_Flow_9">
+        <di:waypoint x="1565" y="535" />
+        <di:waypoint x="1613" y="535" />
+        <di:waypoint x="1613" y="590" />
+        <di:waypoint x="1662" y="590" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
