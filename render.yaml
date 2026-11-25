@@ -1,0 +1,25 @@
+# Blueprint Render: membuat layanan backend dari berkas ini.
+# Panduan lengkap ada di PANDUAN_HOSTING.md bagian B.
+services:
+  - type: web
+    name: pantau-distribusi-api
+    runtime: python
+    plan: free # gratis: tidur setelah 15 menit tanpa akses, bangun sekitar 1 menit
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    autoDeploy: true # deploy ulang setiap ada push ke branch main
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: DEMO_MODE
+        value: "true" # disk gratis Render tidak permanen, jadi data contoh diisi ulang setiap start
+      - key: DEMO_TICK_SECONDS
+        value: "5"
+      - key: DATABASE_URL
+        value: sqlite:///./pantau.db
+      - key: CORS_ORIGINS
+        value: https://muhamadivan1.github.io,http://localhost:5173
+      - key: API_KEY
+        generateValue: true # Render membuat kunci acak, lihat di tab Environment
